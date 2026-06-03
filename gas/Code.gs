@@ -17,7 +17,7 @@
 const CONFIG = {
   // === BẮT BUỘC THAY ĐỔI ===
   SHEET_ID: 'YOUR_GOOGLE_SHEET_ID_HERE',        // ID bảng tính Google Sheets
-  API_KEY: 'vtv_game_secret_2024_CHANGE_ME',     // Khóa bảo mật API
+  API_KEY: 'VuaTiengViet_@2024_Secret_Key_abc123',     // Khóa bảo mật API
   ADMIN_PASSWORD_HASH: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', // SHA-256 của "admin" — THAY ĐỔI NGAY
 
   // === CẤU HÌNH ===

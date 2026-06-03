@@ -104,16 +104,25 @@
             gameStats.perfectStreak = 0;
         }
         function showAchievements() {
-            let html = '<div class="grid grid-cols-2 gap-3 mt-4 max-h-[60vh] overflow-y-auto">';
+            let html = '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 max-h-[75vh] overflow-y-auto p-2">';
             ACHIEVEMENTS.forEach(a => {
                 let u = unlockedAch.includes(a.id);
-                html += `<div class="p-3 rounded-xl border ${u ? 'bg-gradient-to-br from-yellow-500/20 to-amber-500/20 border-yellow-500/40' : 'bg-white/5 border-white/10 opacity-50'} text-center">
-                    <div class="text-3xl mb-1">${u ? a.icon : '🔒'}</div>
-                    <div class="font-bold text-sm text-white">${a.name}</div>
-                    <div class="text-[10px] text-purple-200 mt-1">${a.desc}</div></div>`;
+                html += `<div class="p-3 rounded-xl border flex flex-col items-center justify-center transition-all ${u ? 'bg-gradient-to-br from-yellow-500/30 to-amber-500/30 border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.3)] scale-100' : 'bg-white/5 border-white/10 opacity-60 scale-95'} text-center">
+                    <div class="text-4xl mb-2 drop-shadow-md">${u ? a.icon : '🔒'}</div>
+                    <div class="font-bold text-sm text-white mb-1 leading-tight">${a.name}</div>
+                    <div class="text-[10px] text-purple-200 mt-auto">${a.desc}</div></div>`;
             });
-            html += `</div><div class="text-center mt-3 text-purple-200 text-sm font-bold">${unlockedAch.length}/${ACHIEVEMENTS.length} đã mở khóa</div>`;
-            Swal.fire({ title: '🏅 Thành Tựu', html, width: 500 });
+            html += `</div><div class="text-center mt-4 text-purple-200 text-base font-bold">${unlockedAch.length}/${ACHIEVEMENTS.length} đã mở khóa</div>`;
+            Swal.fire({ 
+                title: '<span class="text-white text-3xl font-bold drop-shadow-md">🏅 Thành Tựu</span>', 
+                html: html, 
+                width: '95%',
+                background: 'linear-gradient(to bottom right, #3b0764, #581c87, #7e22ce)', // Dark purple match
+                customClass: { popup: 'rounded-3xl border-2 border-purple-400/50 shadow-2xl max-w-6xl' },
+                confirmButtonColor: '#10b981',
+                confirmButtonText: '<i class="fa-solid fa-check mr-2"></i> Đóng',
+                padding: '1.5em'
+            });
         }
 
         /*******************************************************
