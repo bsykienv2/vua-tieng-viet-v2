@@ -634,31 +634,30 @@
                         <circle id="timer-ring" cx="50" cy="50" r="45" fill="none" stroke="#fbbf24" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="0" class="timer-circle shadow-lg" stroke-linecap="round" />
                     </svg>
                     <div class="absolute flex flex-col items-center">
-                        <span id="timer-text" class="font-black text-xl md:text-3xl heading-font md:mt-1 text-white">30</span>
-                        <span class="text-[7px] md:text-[8px] uppercase text-purple-200 tracking-tighter hidden md:block">Giây còn lại</span>
+                        <span id="timer-text" class="font-black text-3xl md:text-5xl heading-font md:mt-1 text-white">30</span>
                     </div>
                 </div>
 
                 <!-- Actions -->
                 <div class="flex flex-col gap-2 md:gap-3 flex-1 w-full justify-end">
                     <!-- Khu vực Nút Bấm Hành Động -->
-                    <div class="flex flex-row md:flex-col justify-between md:justify-end gap-1 md:gap-2 w-full mt-auto">
-                        <button onclick="useHint()" class="btn-3d flex-1 bg-blue-500/80 hover:bg-blue-500 border-b-4 border-blue-700 text-white rounded-xl py-2 md:py-3 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Gợi ý">
+                    <div class="flex flex-row md:flex-col justify-between md:justify-end gap-1 md:gap-1.5 w-full mt-auto">
+                        <button onclick="useHint()" class="btn-3d flex-1 bg-blue-500/80 hover:bg-blue-500 border-b-4 border-blue-700 text-white rounded-xl py-1.5 md:py-2 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Gợi ý">
                             <i class="fas fa-lightbulb text-sm md:text-lg"></i> <span class="hidden md:inline">Gợi ý</span>
                         </button>
-                        <button onclick="revealOneTile()" class="btn-3d flex-1 bg-yellow-500/80 hover:bg-yellow-500 border-b-4 border-yellow-700 text-white rounded-xl py-2 md:py-3 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Mở 1 ô">
+                        <button onclick="revealOneTile()" class="btn-3d flex-1 bg-yellow-500/80 hover:bg-yellow-500 border-b-4 border-yellow-700 text-white rounded-xl py-1.5 md:py-2 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Mở 1 ô">
                             <i class="fas fa-eye text-sm md:text-lg"></i> <span class="hidden md:inline">Mở 1 ô</span>
                         </button>
-                        <button onclick="clearSlots()" class="btn-3d flex-1 bg-red-500/80 hover:bg-red-500 border-b-4 border-red-700 text-white rounded-xl py-2 md:py-3 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Xóa">
+                        <button onclick="clearSlots()" class="btn-3d flex-1 bg-red-500/80 hover:bg-red-500 border-b-4 border-red-700 text-white rounded-xl py-1.5 md:py-2 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Xóa">
                             <i class="fas fa-trash-alt text-sm md:text-lg"></i> <span class="hidden md:inline">Xóa</span>
                         </button>
-                        <button onclick="skipQuestion()" class="btn-3d flex-1 bg-gray-500/80 hover:bg-gray-500 border-b-4 border-gray-700 text-white rounded-xl py-2 md:py-3 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Bỏ qua">
+                        <button onclick="skipQuestion()" class="btn-3d flex-1 bg-gray-500/80 hover:bg-gray-500 border-b-4 border-gray-700 text-white rounded-xl py-1.5 md:py-2 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Bỏ qua">
                             <i class="fas fa-forward text-sm md:text-lg"></i> <span class="hidden md:inline">Bỏ qua</span>
                         </button>
-                        <button onclick="fillByVoice()" class="btn-3d flex-1 bg-pink-500/80 hover:bg-pink-500 border-b-4 border-pink-700 text-white rounded-xl py-2 md:py-3 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Nói">
+                        <button onclick="fillByVoice()" class="btn-3d flex-1 bg-pink-500/80 hover:bg-pink-500 border-b-4 border-pink-700 text-white rounded-xl py-1.5 md:py-2 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Nói">
                             <i class="fas fa-microphone text-sm md:text-lg"></i> <span class="hidden md:inline">Nói</span>
                         </button>
-                        <button onclick="checkAnswer()" class="btn-3d flex-1 bg-green-500 hover:bg-green-400 border-b-4 border-green-700 text-white rounded-xl py-2 md:py-4 flex flex-col md:flex-row items-center justify-center text-xs md:text-base font-black gap-1 uppercase tracking-widest text-center tooltip" data-tip="Gửi">
+                        <button onclick="checkAnswer()" class="btn-3d flex-1 bg-green-500 hover:bg-green-400 border-b-4 border-green-700 text-white rounded-xl py-2 md:py-3 flex flex-col md:flex-row items-center justify-center text-xs md:text-base font-black gap-1 uppercase tracking-widest text-center tooltip" data-tip="Gửi">
                             <i class="fas fa-check text-base md:text-xl"></i> <span class="hidden md:inline">Gửi</span>
                         </button>
                     </div>
