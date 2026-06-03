@@ -1387,6 +1387,69 @@
             renderBoard();
         }
 
+        function fillByVoice() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                Swal.fire('Lỗi', 'Trình duyệt không hỗ trợ nhận diện giọng nói!', 'error');
+                return;
+            }
+            
+            const SpeechRecog = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecog();
+            recognition.lang = 'vi-VN';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            Swal.fire({
+                title: 'Đang nghe...',
+                text: 'Hãy đọc đáp án của bạn',
+                icon: 'info',
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                    try {
+                        recognition.start();
+                    } catch(e) {
+                        Swal.close();
+                        console.error(e);
+                    }
+                }
+            });
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                Swal.close();
+                
+                let cleaned = xoaDau(transcript.toUpperCase().replace(/\s+/g, ''));
+                
+                // Clear existing slots to place new letters
+                clearSlots();
+                
+                let availableLetters = state.letters.map((l, idx) => ({...l, originalIdx: idx})).filter(l => !l.locked && !l.used && !l.deleted);
+                
+                for (let i = 0; i < cleaned.length; i++) {
+                    if (i >= state.slots.length) break;
+                    if (state.slots[i].locked) continue;
+                    
+                    let charToFind = cleaned[i];
+                    let foundIdx = availableLetters.findIndex(l => l.char === charToFind && !l.used);
+                    if (foundIdx !== -1) {
+                        let realIdx = availableLetters[foundIdx].originalIdx;
+                        state.slots[i] = { char: charToFind, srcIdx: realIdx, locked: false };
+                        state.letters[realIdx].used = true;
+                        availableLetters[foundIdx].used = true;
+                    }
+                }
+                
+                sfx.click();
+                renderBoard();
+                // Prompt: "và phải bấm nút 'gửi' khi chọn điền bằng giọng nói" -> Therefore, DO NOT call checkAnswer() automatically.
+            };
+
+            recognition.onerror = (event) => {
+                Swal.fire('Lỗi', 'Không thể nhận diện giọng nói: ' + event.error, 'error');
+            };
+        }
+
         function checkAnswer() {
             let currentWordFormed = state.slots.map(s => s.char || ' ').join('');
             
