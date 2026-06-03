@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="vi" class="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Vua Tiếng Việt - V2.0</title>
+
+    <!-- Tailwind CSS (via CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            100: '#f3e8ff', // pastels
+                            500: '#a855f7',
+                            700: '#7e22ce',
+                            900: '#4c1d95', // deep purple
+                        }
+                    },
+                    fontFamily: {
+                        heading: ['"Baloo 2"', 'cursive'],
+                        body: ['"Quicksand"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,600;0,700;0,800;0,900;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* CSS Thuần - Hiệu ứng Animations & UI Cốt lõi */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(to bottom right, var(--bg-1, #4c1d95), var(--bg-2, #6d28d9), var(--bg-3, #8b5cf6));
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 0.5s ease;
+        }
+        
+        .dark body {
+            background: linear-gradient(to bottom right, var(--bg-1, #3b0764), var(--bg-2, #581c87), var(--bg-3, #7e22ce));
+            color: white;
+        }
+
+        .heading-font {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .dark .glass {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Nút bo tròn mạnh, bóng đổ 3D và Nảy (translate-y) */
+        .btn-3d {
+            transition: all 0.1s ease;
+        }
+        
+        .btn-3d:active {
+            transform: translateY(4px);
+            border-bottom-width: 0px !important;
+            margin-bottom: 4px; /* compensate for border loss */
+        }
+
+        /* Ô chữ (Slots/Letters) */
+        .char-tile {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            user-select: none;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+        
+        #board-slots .char-tile {
+            width: calc(75px * var(--tile-scale, 1));
+            height: calc(90px * var(--tile-scale, 1));
+            font-size: calc(2.4rem * var(--tile-scale, 1));
+            border-radius: calc(10px * var(--tile-scale, 1));
+        }
+
+        #board-letters .char-tile {
+            width: calc(75px * var(--tile-scale, 1));
+            height: calc(85px * var(--tile-scale, 1));
+            font-size: calc(2.2rem * var(--tile-scale, 1)); 
+            border-radius: calc(11px * var(--tile-scale, 1));
+        }
+
+        @media (max-width: 400px) {
+            #board-slots .char-tile { 
+                width: calc(54px * var(--tile-scale, 1)); 
+                height: calc(66px * var(--tile-scale, 1)); 
+                font-size: calc(1.8rem * var(--tile-scale, 1)); 
+            }
+            #board-letters .char-tile { 
+                width: calc(56px * var(--tile-scale, 1)); 
+                height: calc(66px * var(--tile-scale, 1)); 
+                font-size: calc(1.6rem * var(--tile-scale, 1)); 
+            }
+        }
+
+        .slot-empty {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: transparent;
+        }
+        .dark .slot-empty {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .hidden-scrollbar::-webkit-scrollbar { display: none; }
+        .hidden-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .slot-filled {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .dark .slot-filled {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .char-tile.locked {
+            background: rgba(34, 197, 94, 0.4); /* Green tint */
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .letter-avail {
+            background: white;
+            color: #4c1d95;
+            box-shadow: 0 6px 0 #ddd, 0 4px 6px rgba(0,0,0,0.1);
+            height: 50px;
+            width: 50px;
+        }
+        @media (max-width: 400px) {
+            .letter-avail { width: 44px; height: 44px; }
+        }
+
+        .dark .letter-avail {
+            background: #f3e8ff;
+            color: #4c1d95;
+            box-shadow: 0 6px 0 #d8b4fe;
+        }
+
+        .letter-avail:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #ddd;
+        }
+        .dark .letter-avail:active {
+            box-shadow: 0 2px 0 #d8b4fe;
+        }
+
+        .letter-used {
+            visibility: hidden;
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s ease;
+        }
+
+        /* Screen Logic */
+        .screen { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .screen.active { display: flex; opacity: 1; }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .anim-float { animation: float 3s ease-in-out infinite; }
+        
+        @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .anim-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .anim-shake { animation: shake 0.4s ease-in-out; }
+        
+        @keyframes pulse-red {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; stroke: #f87171; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .danger-pulse { animation: pulse-red 0.5s infinite; }
+
+        /* Timer SVG styles */
+        .timer-svg { transform: rotate(-90deg); }
+        .timer-circle {
+            transition: stroke-dashoffset 1s linear, stroke 0.3s;
+        }
+
+        /* Khung gợi ý */
+        .hint-box {
+            position: relative;
+        }
+        .hint-box::before {
+            content: '❝';
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            font-size: 2rem;
+            color: rgba(168, 85, 247, 0.3);
+            font-family: serif;
+        }
+        /* === Tile Animations === */
+        @keyframes tileFlipIn {
+            0% { transform: rotateX(90deg) scale(0.8); opacity: 0; }
+            60% { transform: rotateX(-10deg) scale(1.05); }
+            100% { transform: rotateX(0) scale(1); opacity: 1; }
+        }
+        .anim-tile-flip { animation: tileFlipIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+
+        @keyframes tileBounce {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .anim-tile-bounce { animation: tileBounce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+
+        @keyframes correctGlow {
+            0% { box-shadow: 0 0 0 rgba(34,197,94,0.7); }
+            50% { box-shadow: 0 0 25px 8px rgba(34,197,94,0.5); transform: scale(1.12); background: rgba(34,197,94,0.5); }
+            100% { box-shadow: 0 0 5px rgba(34,197,94,0.3); background: rgba(34,197,94,0.4); }
+        }
+        .anim-correct-tile { animation: correctGlow 0.5s ease both; }
+
+        @keyframes wrongFlash {
+            0%,100% { background: inherit; }
+            25%,75% { background: rgba(239,68,68,0.5); }
+        }
+        .anim-wrong-tile { animation: wrongFlash 0.5s ease; }
+
+        /* Achievement Toast */
+        @keyframes achSlideIn {
+            0% { transform: translate(-50%, -120px); opacity: 0; }
+            15% { transform: translate(-50%, 0); opacity: 1; }
+            85% { transform: translate(-50%, 0); opacity: 1; }
+            100% { transform: translate(-50%, -120px); opacity: 0; }
+        }
+        .ach-toast {
+            position: fixed; top: 20px; left: 50%; z-index: 9999;
+            animation: achSlideIn 3.5s ease both; pointer-events: none;
+        }
+
+        /* Streak fire */
+        @keyframes fireGlow {
+            0%,100% { text-shadow: 0 0 5px #ff6b00, 0 0 10px #ff4500; }
+            50% { text-shadow: 0 0 15px #ff6b00, 0 0 25px #ff4500, 0 0 35px #ff0000; }
+        }
+        .streak-fire { animation: fireGlow 1.5s ease-in-out infinite; }
+
+        /* Cloud sync toast animation */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.3s ease-out; }
+
+        /* Cloud status indicator */
+        .cloud-status {
+            position: fixed; bottom: 12px; left: 12px; z-index: 9998;
+            width: 8px; height: 8px; border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+        .cloud-status.online { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+        .cloud-status.offline { background: #6b7280; }
+    </style>
+</head>
+<body class="text-white antialiased flex flex-col items-center select-none">
+
+    <!-- Cloud Status Indicator -->
+    <div id="cloud-dot" class="cloud-status offline" title="Cloud: Offline"></div>
+
+    <!-- Nút đổi giao diện & Settings -->
+    <div class="fixed top-4 right-4 z-50 flex gap-3">
+        <button id="btn-settings" class="w-10 h-10 rounded-full glass flex justify-center items-center text-xl btn-3d text-white border-b-4 border-white/20" onclick="openSettings()">
+            <i class="fas fa-cog"></i>
+        </button>
+    </div>
+
+    <!-- MÀN HÌNH SETTINGS (Settings Modal) -->
+    <div id="screen-settings" class="screen flex-col justify-center items-center w-full h-screen px-6 bg-black/60 fixed inset-0 z-[100] backdrop-blur-sm">
+        <div class="glass w-full max-w-lg rounded-[40px] p-8 anim-pop border border-white/20 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeSettings()" class="absolute top-4 right-4 w-10 h-10 bg-white/10 rounded-full flex justify-center items-center hover:bg-white/20">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+
+            <h2 class="heading-font text-3xl font-bold text-center mb-6 text-white"><i class="fas fa-cog"></i> Cài Đặt Chung</h2>
+
+            <div class="mb-6">
+                <label class="block font-bold mb-2 text-purple-200"><i class="fas fa-palette"></i> Màu Giao Diện (Theme):</label>
+                <div class="grid grid-cols-4 gap-3">
+                    <button onclick="setThemeScheme('purple')" class="h-12 rounded-xl bg-gradient-to-br from-[#4c1d95] to-[#8b5cf6] border-2 border-transparent focus:border-white theme-btn" data-theme="purple"></button>
+                    <button onclick="setThemeScheme('blue')" class="h-12 rounded-xl bg-gradient-to-br from-[#1e3a8a] to-[#3b82f6] border-2 border-transparent focus:border-white theme-btn" data-theme="blue"></button>
+                    <button onclick="setThemeScheme('green')" class="h-12 rounded-xl bg-gradient-to-br from-[#14532d] to-[#22c55e] border-2 border-transparent focus:border-white theme-btn" data-theme="green"></button>
+                    <button onclick="setThemeScheme('red')" class="h-12 rounded-xl bg-gradient-to-br from-[#7f1d1d] to-[#ef4444] border-2 border-transparent focus:border-white theme-btn" data-theme="red"></button>
+                </div>
+            </div>
+
+            <hr class="border-white/10 my-6">
+
+            <h2 class="heading-font text-2xl font-bold text-center mb-6 text-white"><i class="fas fa-user-shield"></i> Dành Cho Quản Trị Viên</h2>
+            
+            <div class="flex flex-col gap-4">
+                <button onclick="openAdminPanel()" class="btn-3d w-full bg-blue-500/80 hover:bg-blue-500 text-white font-bold py-3 rounded-2xl flex items-center justify-center gap-2 border-b-4 border-blue-700">
+                    <i class="fas fa-database"></i> Quản lý Câu Hỏi & Chủ Đề
+                </button>
+                <button onclick="resetData()" class="btn-3d w-full bg-red-500/80 hover:bg-red-500 text-white border-b-4 border-red-700 font-bold py-3 rounded-2xl flex items-center justify-center gap-2">
+                    Khôi phục dữ liệu gốc
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MÀN HÌNH ADMIN PANEL -->
+    <div id="screen-admin" class="screen flex-col w-full h-screen max-w-4xl px-4 py-8 mx-auto relative hidden z-[110] bg-black/90">
+        <header class="flex justify-between items-center mb-6 shrink-0">
+            <h2 class="heading-font text-3xl font-bold text-white"><i class="fas fa-user-shield text-blue-400"></i> Admin Panel</h2>
+            <button onclick="closeAdminPanel()" class="w-10 h-10 rounded-full bg-white/20 hover:bg-red-500 flex items-center justify-center transition-colors text-white text-lg">
+                <i class="fas fa-times"></i>
+            </button>
+        </header>
+
+        <div class="flex-1 flex flex-col md:flex-row gap-6 min-h-0">
+            <!-- Sidebar: Add new & Config -->
+            <div class="w-full md:w-1/3 flex flex-col gap-4 overflow-y-auto pr-2">
+                
+                <div class="bg-white/10 rounded-3xl p-6 border border-white/20 flex flex-col gap-4">
+                    <h3 class="font-bold text-xl text-yellow-300">Cài Đặt Thời Gian</h3>
+                    <label class="text-sm font-bold text-purple-200">Dễ (giây):</label>
+                    <input type="number" id="admin-time-easy" class="w-full bg-black/50 text-white border border-white/20 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-400">
+                    <label class="text-sm font-bold text-purple-200">Trung bình (giây):</label>
+                    <input type="number" id="admin-time-normal" class="w-full bg-black/50 text-white border border-white/20 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-400">
+                    <label class="text-sm font-bold text-purple-200">Khó (giây):</label>
+                    <input type="number" id="admin-time-hard" class="w-full bg-black/50 text-white border border-white/20 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-400">
+                    <button onclick="saveAdminConfig()" class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 rounded-xl shadow-lg mt-2 transition-transform active:scale-95">
+                        Lưu Thay Đổi
+                    </button>
+                </div>
+
+                <div class="bg-white/10 rounded-3xl p-6 border border-white/20 flex flex-col gap-4">
+                    <h3 class="font-bold text-xl text-yellow-300">Thêm Câu Hỏi Mới</h3>
+                    <input type="text" id="admin-word" placeholder="Đáp án (VD: HẠNH PHÚC)" class="w-full bg-black/50 text-white border border-white/20 rounded-xl px-4 py-2 uppercase font-bold focus:ring-2 focus:ring-blue-400">
+                    <input type="text" id="admin-hint" placeholder="Câu hỏi / Gợi ý" class="w-full bg-black/50 text-white border border-white/20 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-400">
+                    <input type="text" id="admin-topic-custom" list="admin-topic-list" placeholder="Chọn hoặc nhập chủ đề" class="w-full bg-black/50 text-white border border-white/20 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-400">
+                    <datalist id="admin-topic-list"></datalist>
+                    <button onclick="adminAddQuestion()" class="bg-green-500 hover:bg-green-400 text-white font-bold py-3 rounded-xl shadow-lg mt-2 transition-transform active:scale-95">
+                        Thêm vào CSDL
+                    </button>
+                    <div class="text-xs text-gray-400 mt-2">* Chữ gây nhiễu sẽ được hệ thống sinh tự động.</div>
+                </div>
+            </div>
+
+            <!-- Main: List -->
+            <div class="flex-1 bg-white/10 rounded-3xl border border-white/20 p-6 flex flex-col min-h-0">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-xl text-yellow-300">Ngân Hàng Dữ Liệu</h3>
+                    <span id="admin-count" class="text-sm bg-blue-500 px-3 py-1 rounded-full font-bold"></span>
+                </div>
+                <div class="overflow-y-auto flex-1 pr-2" id="admin-list">
+                    <!-- render here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MÀN HÌNH QUẢN LÝ CÂU HỎI THEO CHỦ ĐỀ -->
+    <div id="modal-topic-manager" class="fixed inset-0 bg-black/80 z-[120] hidden flex-col items-center justify-center p-4">
+        <div class="bg-gray-900 border border-white/20 w-full max-w-3xl rounded-3xl p-6 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4 shrink-0">
+                <h3 class="font-bold text-2xl text-yellow-300" id="topic-manager-title">Chủ đề: XXX</h3>
+                <button onclick="closeTopicManager()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-red-500 flex items-center justify-center text-white transition-colors text-lg"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="bg-white/5 rounded-2xl p-4 flex flex-col md:flex-row gap-2 mb-4 shrink-0">
+                <input type="text" id="topic-manage-word" placeholder="Đáp án (VD: KHOA HỌC)" class="flex-1 bg-black/50 text-white border border-white/20 rounded-xl px-4 py-2 uppercase font-bold focus:ring-2 focus:ring-blue-400">
+                <input type="text" id="topic-manage-hint" placeholder="Câu hỏi / Gợi ý" class="flex-1 bg-black/50 text-white border border-white/20 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-400">
+                <button onclick="topicManageAddQuestion()" class="bg-green-500 hover:bg-green-400 text-white font-bold px-6 py-2 rounded-xl transition-transform active:scale-95 shadow-lg whitespace-nowrap">
+                    Thêm Câu Hỏi
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto bg-black/30 rounded-2xl p-4 border border-white/10 min-h-0" id="topic-manager-list">
+                <!-- list of questions in this topic -->
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-home" class="screen active flex-col justify-center items-center w-full max-w-md h-screen px-6">
+        <div class="anim-float text-center mb-10">
+            <h1 class="heading-font text-5xl md:text-6xl font-extrabold text-white drop-shadow-lg tracking-wide">
+                Trò chơi<br/>Ô chữ
+            </h1>
+            <p class="mt-3 text-purple-200 tracking-wider uppercase text-sm glass px-4 py-1 rounded-full inline-block font-bold">phiên bản web</p>
+        </div>
+
+        <div class="w-full flex flex-col gap-4">
+            <button onclick="router.go('solo_setup')" class="btn-3d w-full bg-purple-500/80 hover:bg-purple-500 text-white font-bold py-4 rounded-full text-xl flex items-center justify-center gap-3 border-b-4 border-purple-700">
+                <i class="fas fa-user"></i> Chơi cá nhân
+            </button>
+            <button onclick="router.go('ai_setup')" class="btn-3d w-full bg-orange-500/80 hover:bg-orange-500 text-white font-bold py-4 rounded-full text-xl flex items-center justify-center gap-3 border-b-4 border-orange-700">
+                <i class="fas fa-robot"></i> Thi đấu với AI
+            </button>
+            <button onclick="router.go('setup')" class="btn-3d w-full bg-pink-500/80 hover:bg-pink-500 text-white font-bold py-4 rounded-full text-xl flex items-center justify-center gap-3 border-b-4 border-pink-700">
+                <i class="fas fa-users"></i> Thử thách bạn bè
+            </button>
+            <button onclick="router.go('daily')" class="btn-3d w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold py-4 rounded-full text-xl flex items-center justify-center gap-3 border-b-4 border-amber-700">
+                <i class="fas fa-calendar-day"></i> Thử thách hàng ngày
+            </button>
+            <div class="flex gap-3">
+                <button onclick="showLeaderboard()" class="btn-3d flex-1 bg-blue-500/80 hover:bg-blue-500 text-white font-bold py-3 rounded-full text-lg flex items-center justify-center gap-2 border-b-4 border-blue-700">
+                    <i class="fas fa-trophy"></i> Xếp hạng
+                </button>
+                <button onclick="showAchievements()" class="btn-3d flex-1 bg-emerald-500/80 hover:bg-emerald-500 text-white font-bold py-3 rounded-full text-lg flex items-center justify-center gap-2 border-b-4 border-emerald-700">
+                    <i class="fas fa-medal"></i> Thành tựu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH SOLO SETUP -->
+    <div id="screen-solo_setup" class="screen flex-col justify-center items-center w-full max-w-md h-screen px-6">
+        <div class="glass w-full rounded-[40px] p-8 anim-pop border border-white/10">
+            <h2 class="heading-font text-3xl font-bold text-center mb-6 text-white">Chơi Cá Nhân</h2>
+            
+            <label class="block font-bold mb-2 text-purple-200">Họ và Tên:</label>
+            <input type="text" id="solo-name" placeholder="Ví dụ: Nguyễn Văn A" class="w-full bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4">
+            
+            <label class="block font-bold mb-2 text-purple-200">Lớp (Tùy chọn):</label>
+            <input type="text" id="solo-class" placeholder="Ví dụ: 12A1" class="w-full bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4">
+
+            <label class="block font-bold mb-2 text-purple-200">Chủ đề:</label>
+            <select id="solo-topic" class="w-full bg-white/10 text-white border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4 appearance-none">
+                <option value="ALL" class="text-black">Tất cả từ khóa</option>
+                <option value="THÔNG DỤNG" class="text-black">Từ khóa thông dụng</option>
+                <option value="THÀNH NGỮ" class="text-black">Thành ngữ - Tục ngữ</option>
+                <option value="KHOA HỌC" class="text-black">Lĩnh vực khoa học</option>
+                <option value="LỊCH SỬ" class="text-black">Lĩnh vực lịch sử</option>
+            </select>
+
+            <label class="block font-bold mb-2 text-purple-200">Độ Khó:</label>
+            <select id="solo-diff" class="w-full bg-white/10 text-white border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-6 appearance-none">
+                <option value="easy" class="text-black" id="opt-easy">Dễ (ít chữ nhiễu)</option>
+                <option value="normal" class="text-black" id="opt-normal">Trung bình (vừa chữ nhiễu)</option>
+                <option value="hard" class="text-black" id="opt-hard">Khó (nhiều chữ nhiễu)</option>
+            </select>
+
+            <button onclick="startSoloProcess()" class="btn-3d w-full bg-green-500 hover:bg-green-400 text-white font-bold py-4 rounded-full text-lg border-b-4 border-green-700 tracking-wider">
+                BẮT ĐẦU <i class="fas fa-play ml-2"></i>
+            </button>
+            <button onclick="router.go('home')" class="w-full text-center mt-4 text-purple-200 font-bold opacity-70 hover:opacity-100">
+                QUAY LẠI
+            </button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH DAILY CHALLENGE -->
+    <div id="screen-daily" class="screen flex-col justify-center items-center w-full max-w-md h-screen px-6">
+        <div class="glass w-full rounded-[40px] p-8 anim-pop border border-white/10">
+            <h2 class="heading-font text-3xl font-bold text-center mb-2 text-white"><i class="fas fa-calendar-day text-amber-400"></i> Thử Thách Hàng Ngày</h2>
+            <p class="text-center text-purple-200 text-sm mb-6">Mỗi ngày 5 câu hỏi — Tất cả người chơi cùng bộ đề!</p>
+
+            <div class="bg-white/10 rounded-2xl p-4 mb-6 border border-white/10 text-center">
+                <div class="text-sm text-purple-200 font-bold uppercase tracking-wider mb-1">Chuỗi ngày liên tiếp</div>
+                <div id="daily-streak-display" class="text-4xl font-black text-amber-400 streak-fire">0 🔥</div>
+                <div id="daily-status" class="text-xs text-green-300 mt-2 font-bold"></div>
+            </div>
+
+            <label class="block font-bold mb-2 text-purple-200">Họ và Tên:</label>
+            <input type="text" id="daily-name" placeholder="Ví dụ: Nguyễn Văn A" class="w-full bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-amber-400 mb-6">
+
+            <button onclick="startDailyChallenge()" id="btn-daily-start" class="btn-3d w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-4 rounded-full text-lg border-b-4 border-amber-700 tracking-wider">
+                BẮT ĐẦU <i class="fas fa-play ml-2"></i>
+            </button>
+            <button onclick="router.go('home')" class="w-full text-center mt-4 text-purple-200 font-bold opacity-70 hover:opacity-100">
+                QUAY LẠI
+            </button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH AI SETUP -->
+    <div id="screen-ai_setup" class="screen flex-col justify-center items-center w-full max-w-md h-screen px-6">
+        <div class="glass w-full rounded-[40px] p-8 anim-pop border border-white/10">
+            <h2 class="heading-font text-3xl font-bold text-center mb-6 text-white">Đấu với AI</h2>
+            
+            <label class="block font-bold mb-2 text-purple-200">Họ và Tên:</label>
+            <input type="text" id="ai-name" placeholder="Ví dụ: Nguyễn Văn A" class="w-full bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4">
+            
+            <label class="block font-bold mb-2 text-purple-200">Lớp (Tùy chọn):</label>
+            <input type="text" id="ai-class" placeholder="Ví dụ: 12A1" class="w-full bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4">
+
+            <label class="block font-bold mb-2 text-purple-200">Độ Khó AI (Tốc độ trả lời):</label>
+            <select id="ai-level" class="w-full bg-white/10 text-white border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-6 appearance-none">
+                <option value="easy" class="text-black">Bot Tập Sự (Chậm chạp)</option>
+                <option value="normal" class="text-black">Bot Trạng Nguyên (Nhanh nhẹn)</option>
+                <option value="hard" class="text-black">Bot Thần Đồng (Thần tốc)</option>
+            </select>
+
+            <button onclick="startAIProcess()" class="btn-3d w-full bg-red-500 hover:bg-red-400 text-white font-bold py-4 rounded-full text-lg border-b-4 border-red-700 tracking-wider">
+                THÁCH ĐẤU <i class="fas fa-bolt ml-2"></i>
+            </button>
+            <button onclick="router.go('home')" class="w-full text-center mt-4 text-purple-200 font-bold opacity-70 hover:opacity-100">
+                QUAY LẠI
+            </button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH 2: SETUP SCREEN (Cho chế độ Challenge) -->
+    <div id="screen-setup" class="screen flex-col justify-center items-center w-full max-w-md h-screen px-6">
+        <div class="glass w-full rounded-[40px] p-8 anim-pop border border-white/10">
+            <h2 class="heading-font text-3xl font-bold text-center mb-6 text-white">Thiết lập thử thách</h2>
+            
+            <label class="block font-bold mb-2 text-purple-200">Số người chơi (2-5):</label>
+            <div class="flex items-center justify-between bg-white/10 rounded-2xl p-2 mb-6 border border-white/20">
+                <button onclick="adjPlayers(-1)" class="w-10 h-10 bg-purple-500 text-white rounded-xl btn-3d border-b-4 border-purple-700 flex items-center justify-center"><i class="fas fa-minus"></i></button>
+                <span id="player-count" class="text-2xl font-bold heading-font text-white">2</span>
+                <button onclick="adjPlayers(1)" class="w-10 h-10 bg-purple-500 text-white rounded-xl btn-3d border-b-4 border-purple-700 flex items-center justify-center"><i class="fas fa-plus"></i></button>
+            </div>
+
+            <div id="player-names-container" class="flex flex-col gap-3 mb-6">
+                <!-- Chèn input động -->
+            </div>
+
+            <button onclick="startChallengeProcess()" class="btn-3d w-full bg-green-500 hover:bg-green-400 text-white font-bold py-4 rounded-full text-lg border-b-4 border-green-700 tracking-wider">
+                BẮT ĐẦU NGAY <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+            <button onclick="router.go('home')" class="w-full text-center mt-4 text-purple-200 font-bold opacity-70 hover:opacity-100">
+                QUAY LẠI
+            </button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH 3: INTERMISSION SCREEN (Pass & Play) -->
+    <div id="screen-intermission" class="screen flex-col justify-center items-center w-full max-w-md h-screen px-6">
+        <div class="glass p-8 rounded-[40px] text-center shadow-2xl anim-pop border border-white/20 w-full">
+            <i class="fas fa-hand-holding-heart text-6xl text-pink-400 mb-4 anim-float"></i>
+            <h2 class="heading-font text-4xl font-bold mb-2 text-white">Chuyển máy!</h2>
+            <p class="text-xl mb-6 text-purple-200">Đã đến lượt của</p>
+            <div id="intermission-player-name" class="text-3xl font-bold text-white heading-font bg-white/20 border border-white/40 rounded-2xl py-3 px-6 inline-block mb-8 shadow-inner">Tên Người Chơi</div>
+            
+            <button onclick="router.go('game', { mode: 'challenge_turn' })" class="btn-3d w-full bg-purple-500/80 hover:bg-purple-500 border-b-4 border-purple-700 text-white font-bold py-4 rounded-full text-xl uppercase tracking-wider">
+                Tôi đã sẵn sàng <i class="fas fa-check-circle ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH 4: GAME SCREEN -->
+    <div id="screen-game" class="screen flex-col w-full h-screen relative px-4 py-4 md:py-6 gap-4 mx-auto md:px-12 lg:px-20">
+        
+        <!-- Thanh Topbar -->
+        <header class="flex justify-between items-center bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl shadow-xl border border-white/20 w-full shrink-0">
+            <div class="flex items-center gap-2">
+                <button onclick="confirmHome()" class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors text-white text-lg">
+                    <i class="fas fa-home"></i>
+                </button>
+                <button onclick="confirmStop()" class="w-10 h-10 rounded-full bg-red-500/80 hover:bg-red-500 flex items-center justify-center transition-colors text-white text-lg">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+                <div id="hud-hearts" class="flex justify-center items-center gap-1 text-red-500 text-lg md:text-xl drop-shadow-md ml-1 md:ml-2 bg-white/10 rounded-full px-3 h-10 border border-white/10">
+                    <!-- 3 hearts added by JS -->
+                </div>
+            </div>
+            <div class="flex flex-col items-center">
+                <span class="text-[10px] uppercase font-bold text-purple-300 hidden md:block">Điểm / Rank / Combo</span>
+                <span class="text-[9px] uppercase font-bold text-purple-300 md:hidden">Điểm / Rank</span>
+                <div class="font-bold flex items-center gap-1 md:gap-2">
+                    <span id="hud-score" class="text-yellow-300 text-lg md:text-xl font-black">0</span>
+                    <span class="text-xs opacity-40 text-white">|</span>
+                    <span id="hud-rank" class="text-xs md:text-sm font-semibold heading-font text-white truncate max-w-[80px] md:max-w-none">Thường Dân</span>
+                    <span class="text-xs opacity-40 text-white">|</span>
+                    <span id="hud-combo" class="text-orange-400 text-lg md:text-xl font-black italic">x1.0</span>
+                </div>
+            </div>
+            <div class="flex flex-col items-end">
+                <span id="hud-mode-text" class="text-[10px] uppercase font-bold text-purple-300 text-right">Câu hỏi</span>
+                <div class="font-bold heading-font text-base md:text-lg text-white" id="hud-q-num">1/50</div>
+            </div>
+        </header>
+
+        <!-- Thanh Progress Bar tổng thể vòng chơi -->
+        <div class="w-full bg-white/10 h-2 rounded-full border border-white/10 overflow-hidden shrink-0">
+            <div id="hud-progress" class="bg-gradient-to-r from-yellow-300 to-orange-400 h-full w-0 transition-all duration-500 shadow-[0_0_10px_rgba(253,224,71,0.5)]"></div>
+        </div>
+
+        <main class="flex-1 flex flex-col md:flex-row gap-4 w-full h-full min-h-0 overflow-y-auto overflow-x-hidden hidden-scrollbar pb-8 md:pb-8">
+            <!-- Sidebar HUD -->
+            <aside class="w-full md:w-36 flex flex-row md:flex-col gap-3 shrink-0">
+                <!-- Đồng hồ Vòng tròn -->
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl md:rounded-3xl p-3 md:p-4 border border-white/20 shadow-lg relative flex justify-center items-center flex-1 md:flex-none">
+                    <svg viewBox="0 0 100 100" class="w-14 h-14 md:w-20 md:h-20 timer-svg">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" />
+                        <circle id="timer-ring" cx="50" cy="50" r="45" fill="none" stroke="#fbbf24" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="0" class="timer-circle shadow-lg" stroke-linecap="round" />
+                    </svg>
+                    <div class="absolute flex flex-col items-center">
+                        <span id="timer-text" class="font-black text-xl md:text-3xl heading-font md:mt-1 text-white">30</span>
+                        <span class="text-[7px] md:text-[8px] uppercase text-purple-200 tracking-tighter hidden md:block">Giây còn lại</span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col gap-2 md:gap-3 flex-1 w-full justify-end">
+                    <!-- Khu vực Nút Bấm Hành Động -->
+                    <div class="flex flex-row md:flex-col justify-between md:justify-end gap-1 md:gap-2 w-full mt-auto">
+                        <button onclick="useHint()" class="btn-3d flex-1 bg-blue-500/80 hover:bg-blue-500 border-b-4 border-blue-700 text-white rounded-xl py-2 md:py-3 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Gợi ý">
+                            <i class="fas fa-lightbulb text-sm md:text-lg"></i> <span class="hidden md:inline">Gợi ý</span>
+                        </button>
+                        <button onclick="revealOneTile()" class="btn-3d flex-1 bg-yellow-500/80 hover:bg-yellow-500 border-b-4 border-yellow-700 text-white rounded-xl py-2 md:py-3 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Mở 1 ô">
+                            <i class="fas fa-eye text-sm md:text-lg"></i> <span class="hidden md:inline">Mở 1 ô</span>
+                        </button>
+                        <button onclick="clearSlots()" class="btn-3d flex-1 bg-red-500/80 hover:bg-red-500 border-b-4 border-red-700 text-white rounded-xl py-2 md:py-3 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Xóa">
+                            <i class="fas fa-trash-alt text-sm md:text-lg"></i> <span class="hidden md:inline">Xóa</span>
+                        </button>
+                        <button onclick="skipQuestion()" class="btn-3d flex-1 bg-gray-500/80 hover:bg-gray-500 border-b-4 border-gray-700 text-white rounded-xl py-2 md:py-3 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-sm font-bold gap-1 uppercase tracking-wider tooltip" data-tip="Bỏ qua">
+                            <i class="fas fa-forward text-sm md:text-lg"></i> <span class="hidden md:inline">Bỏ qua</span>
+                        </button>
+                        <button onclick="checkAnswer()" class="btn-3d flex-1 bg-green-500 hover:bg-green-400 border-b-4 border-green-700 text-white rounded-xl py-2 md:py-4 flex flex-col md:flex-row items-center justify-center text-xs md:text-base font-black gap-1 uppercase tracking-widest text-center tooltip" data-tip="Gửi">
+                            <i class="fas fa-check text-base md:text-xl"></i> <span class="hidden md:inline">Gửi</span>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Khu vực trung tâm chơi -->
+            <section class="flex-1 flex flex-col items-center justify-start bg-white/5 backdrop-blur-sm rounded-[40px] border border-white/10 p-2 md:p-4 w-full relative">
+                <div class="flex-1 w-full flex flex-col items-center">
+                    <!-- Mascot biểu cảm (hidden) -->
+                    <div id="mascot" class="hidden">🤔</div>
+                    
+                    <!-- Gợi ý -->
+                    <div class="w-full mb-2 md:mb-4 max-w-5xl text-center px-4 md:px-12 mt-2 md:mt-4">
+                        <p id="question-hint" class="italic text-purple-100 text-[1.2rem] md:text-[1.8rem] leading-relaxed min-h-[60px]"></p>
+                    </div>
+
+                    <!-- Khay trống (Slots) -->
+                    <div id="board-slots" class="flex flex-wrap justify-center gap-4 md:gap-6 mb-4 md:mb-6 w-full px-1 mt-2 md:mt-4 relative z-10">
+                        <!-- Slots added by js -->
+                    </div>
+
+                    <!-- Khay chữ cái bị xáo (Available) -->
+                    <div class="w-full flex justify-center mt-auto md:mb-4">
+                        <div id="board-letters" class="flex flex-wrap justify-center gap-3 md:gap-5 max-w-4xl">
+                            <!-- Letters added by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nút Bấm Hành Động đã được chuyển sang sidebar trái -->
+            </section>
+        </main>
+    </div>
+
+    <!-- MÀN HÌNH 5: PODIUM SCREEN (Kết thúc game / Thách đấu) -->
+    <div id="screen-podium" class="screen flex-col justify-center items-center w-full max-w-md h-screen px-6">
+        <div class="w-full glass rounded-[40px] p-8 pt-12 text-center relative anim-pop mt-10 border border-white/20">
+            <div class="absolute -top-12 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-yellow-300 to-amber-500 rounded-full shadow-xl flex items-center justify-center text-5xl border-4 border-white/40">
+                🏆
+            </div>
+            
+            <h2 id="podium-title" class="heading-font text-3xl font-bold mb-6 mt-2 text-white">Kết Quả</h2>
+            
+            <div id="podium-list" class="flex flex-col gap-3 mb-8 w-full text-left">
+                <!-- Danh sách xếp hạng -->
+            </div>
+
+            <button id="btn-share" onclick="shareResult()" class="btn-3d w-full bg-blue-500/80 hover:bg-blue-500 border-b-4 border-blue-700 text-white font-bold py-4 rounded-full text-lg flex items-center justify-center gap-2 mb-4 tracking-wider">
+                <i class="fas fa-share-alt"></i> CHIA SẺ KẾT QUẢ
+            </button>
+            <button onclick="router.go('home')" class="w-full text-center text-purple-200 font-bold py-2 opacity-70 hover:opacity-100 uppercase tracking-widest text-sm">
+                Về trang chủ
+            </button>
+        </div>
+    </div>
+
+
+    <!-- MÀN HÌNH 6: BẢNG XẾP HẠNG -->
+    <div id="screen-leaderboard" class="screen flex-col justify-start items-center w-full max-w-md h-screen px-6 pt-10 pb-6 overflow-y-auto hidden-scrollbar">
+        <div class="w-full flex justify-between items-center mb-6">
+            <button onclick="router.go('home')" class="w-12 h-12 rounded-full glass flex items-center justify-center text-white hover:bg-white/20 transition-colors">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </button>
+            <h2 class="text-2xl font-bold text-white tracking-widest">BẢNG VÀNG</h2>
+            <div class="w-12 h-12"></div> <!-- Spacer -->
+        </div>
+
+        <div class="w-full glass rounded-[30px] p-6 text-center border border-white/20 flex-1 flex flex-col">
+            <div class="flex justify-center mb-4">
+                <div class="w-20 h-20 bg-gradient-to-br from-yellow-300 to-amber-500 rounded-full shadow-xl flex items-center justify-center text-4xl border-4 border-white/40">
+                    🏆
+                </div>
+            </div>
+            
+            <p class="text-white/80 text-sm mb-6">Top 5 người chơi xuất sắc nhất (Cá nhân & Daily)</p>
+            
+            <div id="leaderboard-list" class="flex flex-col gap-3 flex-1 overflow-y-auto hidden-scrollbar">
+                <!-- Nội dung bảng xếp hạng sẽ được render qua JS -->
+            </div>
+        </div>
+    </div>
+    <!-- CLOUD DATABASE CONFIG -->
+    <script src="scripts/config.js"></script>
+    <!-- MAIN HỆ THỐNG JS -->
+    <script src="scripts/main.js"></script>
+</body>
+</html>
