@@ -465,27 +465,35 @@
         <div class="glass w-full rounded-[40px] p-8 anim-pop border border-white/10">
             <h2 class="heading-font text-3xl font-bold text-center mb-6 text-white">Chơi Cá Nhân</h2>
             
-            <label class="block font-bold mb-2 text-purple-200">Họ và Tên:</label>
-            <input type="text" id="solo-name" placeholder="Ví dụ: Nguyễn Văn A" class="w-full bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4">
+            <div class="flex items-center gap-3 mb-4">
+                <label class="w-1/3 font-bold text-purple-200 text-right">Họ và Tên:</label>
+                <input type="text" id="solo-name" placeholder="Ví dụ: Nguyễn Văn A" class="w-2/3 bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400">
+            </div>
             
-            <label class="block font-bold mb-2 text-purple-200">Lớp (Tùy chọn):</label>
-            <input type="text" id="solo-class" placeholder="Ví dụ: 12A1" class="w-full bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4">
+            <div class="flex items-center gap-3 mb-4">
+                <label class="w-1/3 font-bold text-purple-200 text-right">Lớp (Tùy chọn):</label>
+                <input type="text" id="solo-class" placeholder="Ví dụ: 12A1" class="w-2/3 bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400">
+            </div>
 
-            <label class="block font-bold mb-2 text-purple-200">Chủ đề:</label>
-            <select id="solo-topic" class="w-full bg-white/10 text-white border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4 appearance-none">
-                <option value="ALL" class="text-black">Tất cả từ khóa</option>
-                <option value="THÔNG DỤNG" class="text-black">Từ khóa thông dụng</option>
-                <option value="THÀNH NGỮ" class="text-black">Thành ngữ - Tục ngữ</option>
-                <option value="KHOA HỌC" class="text-black">Lĩnh vực khoa học</option>
-                <option value="LỊCH SỬ" class="text-black">Lĩnh vực lịch sử</option>
-            </select>
+            <div class="flex items-center gap-3 mb-4">
+                <label class="w-1/3 font-bold text-purple-200 text-right">Chủ đề:</label>
+                <select id="solo-topic" class="w-2/3 bg-white/10 text-white border border-white/20 rounded-2xl px-4 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 appearance-none">
+                    <option value="ALL" class="text-black">Tất cả từ khóa</option>
+                    <option value="THÔNG DỤNG" class="text-black">Từ khóa thông dụng</option>
+                    <option value="THÀNH NGỮ" class="text-black">Thành ngữ - Tục ngữ</option>
+                    <option value="KHOA HỌC" class="text-black">Lĩnh vực khoa học</option>
+                    <option value="LỊCH SỬ" class="text-black">Lĩnh vực lịch sử</option>
+                </select>
+            </div>
 
-            <label class="block font-bold mb-2 text-purple-200">Độ Khó:</label>
-            <select id="solo-diff" class="w-full bg-white/10 text-white border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-6 appearance-none">
-                <option value="easy" class="text-black" id="opt-easy">Dễ (ít chữ nhiễu)</option>
-                <option value="normal" class="text-black" id="opt-normal">Trung bình (vừa chữ nhiễu)</option>
-                <option value="hard" class="text-black" id="opt-hard">Khó (nhiều chữ nhiễu)</option>
-            </select>
+            <div class="flex items-center gap-3 mb-6">
+                <label class="w-1/3 font-bold text-purple-200 text-right">Độ Khó:</label>
+                <select id="solo-diff" class="w-2/3 bg-white/10 text-white border border-white/20 rounded-2xl px-4 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 appearance-none">
+                    <option value="easy" class="text-black" id="opt-easy">Dễ (ít chữ nhiễu)</option>
+                    <option value="normal" class="text-black" id="opt-normal">Trung bình</option>
+                    <option value="hard" class="text-black" id="opt-hard">Khó (nhiều nhiễu)</option>
+                </select>
+            </div>
 
             <button onclick="startSoloProcess()" class="btn-3d w-full bg-green-500 hover:bg-green-400 text-white font-bold py-4 rounded-full text-lg border-b-4 border-green-700 tracking-wider">
                 BẮT ĐẦU <i class="fas fa-play ml-2"></i>
@@ -508,8 +516,10 @@
                 <div id="daily-status" class="text-xs text-green-300 mt-2 font-bold"></div>
             </div>
 
-            <label class="block font-bold mb-2 text-purple-200">Họ và Tên:</label>
-            <input type="text" id="daily-name" placeholder="Ví dụ: Nguyễn Văn A" class="w-full bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-amber-400 mb-6">
+            <div class="flex items-center gap-3 mb-6">
+                <label class="w-1/3 font-bold text-purple-200 text-right">Họ và Tên:</label>
+                <input type="text" id="daily-name" placeholder="Ví dụ: Nguyễn Văn A" class="w-2/3 bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+            </div>
 
             <button onclick="startDailyChallenge()" id="btn-daily-start" class="btn-3d w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-4 rounded-full text-lg border-b-4 border-amber-700 tracking-wider">
                 BẮT ĐẦU <i class="fas fa-play ml-2"></i>
@@ -525,18 +535,24 @@
         <div class="glass w-full rounded-[40px] p-8 anim-pop border border-white/10">
             <h2 class="heading-font text-3xl font-bold text-center mb-6 text-white">Đấu với AI</h2>
             
-            <label class="block font-bold mb-2 text-purple-200">Họ và Tên:</label>
-            <input type="text" id="ai-name" placeholder="Ví dụ: Nguyễn Văn A" class="w-full bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4">
+            <div class="flex items-center gap-3 mb-4">
+                <label class="w-1/3 font-bold text-purple-200 text-right">Họ và Tên:</label>
+                <input type="text" id="ai-name" placeholder="Ví dụ: Nguyễn Văn A" class="w-2/3 bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400">
+            </div>
             
-            <label class="block font-bold mb-2 text-purple-200">Lớp (Tùy chọn):</label>
-            <input type="text" id="ai-class" placeholder="Ví dụ: 12A1" class="w-full bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4">
+            <div class="flex items-center gap-3 mb-4">
+                <label class="w-1/3 font-bold text-purple-200 text-right">Lớp (Tùy chọn):</label>
+                <input type="text" id="ai-class" placeholder="Ví dụ: 12A1" class="w-2/3 bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400">
+            </div>
 
-            <label class="block font-bold mb-2 text-purple-200">Độ Khó AI (Tốc độ trả lời):</label>
-            <select id="ai-level" class="w-full bg-white/10 text-white border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mb-6 appearance-none">
-                <option value="easy" class="text-black">Bot Tập Sự (Chậm chạp)</option>
-                <option value="normal" class="text-black">Bot Trạng Nguyên (Nhanh nhẹn)</option>
-                <option value="hard" class="text-black">Bot Thần Đồng (Thần tốc)</option>
-            </select>
+            <div class="flex items-center gap-3 mb-6">
+                <label class="w-1/3 font-bold text-purple-200 text-right text-sm">Độ Khó AI (Tốc độ):</label>
+                <select id="ai-level" class="w-2/3 bg-white/10 text-white border border-white/20 rounded-2xl px-4 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 appearance-none">
+                    <option value="easy" class="text-black">Bot Tập Sự (Chậm chạp)</option>
+                    <option value="normal" class="text-black">Bot Trạng Nguyên (Nhanh nhẹn)</option>
+                    <option value="hard" class="text-black">Bot Thần Đồng (Thần tốc)</option>
+                </select>
+            </div>
 
             <button onclick="startAIProcess()" class="btn-3d w-full bg-red-500 hover:bg-red-400 text-white font-bold py-4 rounded-full text-lg border-b-4 border-red-700 tracking-wider">
                 THÁCH ĐẤU <i class="fas fa-bolt ml-2"></i>
