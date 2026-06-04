@@ -6,7 +6,7 @@
  */
 const CLOUD_CONFIG = {
     // URL Web App từ Google Apps Script (thay bằng URL thật sau khi deploy)
-    API_URL: 'https://script.google.com/macros/s/AKfycbz_XAiVtxb8e7IBsA02SBp2TwPUyiK3yF7qfelDI9t5I4DXTYCjnClD2URcXDiYede2/exec',
+    API_URL: 'https://script.google.com/macros/s/AKfycbxzPanbXdlpf4zIw7LfceTNYcpYIUq537oeSFZfLgdGjt5AgglHIhGscUT4fKInXUTQ/exec',
 
     // API Key (phải khớp với CONFIG.API_KEY trong Code.gs)
     API_KEY: 'VuaTiengViet_@2024_Secret_Key_abc123',
