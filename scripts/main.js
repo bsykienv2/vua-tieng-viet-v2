@@ -104,24 +104,24 @@
             gameStats.perfectStreak = 0;
         }
         function showAchievements() {
-            let html = '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 max-h-[75vh] overflow-y-auto p-2">';
+            let html = '<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4 max-h-[80vh] overflow-y-auto p-4">';
             ACHIEVEMENTS.forEach(a => {
                 let u = unlockedAch.includes(a.id);
-                html += `<div class="p-3 rounded-xl border flex flex-col items-center justify-center transition-all ${u ? 'bg-gradient-to-br from-yellow-500/30 to-amber-500/30 border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.3)] scale-100' : 'bg-white/5 border-white/10 opacity-60 scale-95'} text-center">
-                    <div class="text-4xl mb-2 drop-shadow-md">${u ? a.icon : '🔒'}</div>
-                    <div class="font-bold text-sm text-white mb-1 leading-tight">${a.name}</div>
-                    <div class="text-[10px] text-purple-200 mt-auto">${a.desc}</div></div>`;
+                html += `<div class="p-4 rounded-xl border flex flex-col items-center justify-center transition-all ${u ? 'bg-gradient-to-br from-yellow-500/40 to-amber-600/40 border-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.5)] scale-100' : 'bg-gray-800/80 border-gray-600 opacity-80 scale-95'} text-center">
+                    <div class="text-5xl mb-3 drop-shadow-lg">${u ? a.icon : '🔒'}</div>
+                    <div class="font-bold text-lg text-white mb-2 leading-tight drop-shadow-md">${a.name}</div>
+                    <div class="text-sm ${u ? 'text-yellow-100 font-semibold' : 'text-gray-300'} mt-auto drop-shadow-sm">${a.desc}</div></div>`;
             });
-            html += `</div><div class="text-center mt-4 text-purple-200 text-base font-bold">${unlockedAch.length}/${ACHIEVEMENTS.length} đã mở khóa</div>`;
+            html += `</div><div class="text-center mt-6 text-yellow-300 text-xl font-bold drop-shadow-md">${unlockedAch.length}/${ACHIEVEMENTS.length} đã mở khóa</div>`;
             Swal.fire({ 
-                title: '<span class="text-white text-3xl font-bold drop-shadow-md">🏅 Thành Tựu</span>', 
+                title: '<span class="text-yellow-400 text-4xl font-extrabold drop-shadow-lg">🏅 BẢNG THÀNH TỰU</span>', 
                 html: html, 
-                width: '95%',
-                background: 'linear-gradient(to bottom right, #3b0764, #581c87, #7e22ce)', // Dark purple match
-                customClass: { popup: 'rounded-3xl border-2 border-purple-400/50 shadow-2xl max-w-6xl' },
+                width: '95vw',
+                background: 'linear-gradient(to bottom right, #1e1b4b, #312e81, #4c1d95)', // Deep rich purple
+                customClass: { popup: 'rounded-3xl border-4 border-yellow-500/50 shadow-2xl max-w-none' },
                 confirmButtonColor: '#10b981',
                 confirmButtonText: '<i class="fa-solid fa-check mr-2"></i> Đóng',
-                padding: '1.5em'
+                padding: '2em'
             });
         }
 
@@ -670,8 +670,8 @@
             for(let i=0; i<prepChallengeNum; i++) {
                 container.innerHTML += `
                 <div class="flex gap-2">
-                    <input type="text" id="p-name-${i}" placeholder="Tên Đội / Bí danh ${i+1}" class="flex-1 bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400">
-                    <select id="p-icon-${i}" class="w-16 bg-white/10 text-white border border-white/20 rounded-2xl text-center text-xl appearance-none">
+                    <input type="text" id="p-name-${i}" placeholder="Tên Đội / Bí danh ${i+1}" class="flex-1 min-w-0 bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-2xl px-3 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-purple-400">
+                    <select id="p-icon-${i}" class="w-16 shrink-0 bg-white/10 text-white border border-white/20 rounded-2xl text-center text-xl appearance-none focus:outline-none focus:ring-2 focus:ring-purple-400">
                         <option value="🦅">🦅</option>
                         <option value="🦁">🦁</option>
                         <option value="🐉">🐉</option>
@@ -1526,3 +1526,13 @@
                 }
             }
         }
+
+        // --- CẢNH BÁO TẢI LẠI TRANG KHI ĐANG CHƠI ---
+        window.addEventListener('beforeunload', function (e) {
+            if (state.isPlaying) {
+                const msg = "Bạn có chắc chắn muốn rời khỏi? Quá trình chơi hiện tại sẽ không được lưu lại.";
+                e.preventDefault();
+                e.returnValue = msg;
+                return msg;
+            }
+        });
